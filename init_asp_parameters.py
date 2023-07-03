@@ -20,7 +20,6 @@ def init_asp_parameters(correl_path):
 #####################
 
 THREADS="10"
-DATA_DIR="/data/scratch/florian/correl"
 
 ####################
 # SET INPUT IMAGES #
