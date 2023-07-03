@@ -1,0 +1,13 @@
+#%Module
+set prefix /data/soft/ASP-SAR/
+set exec_prefix ${prefix}
+
+if { [module-info mode load] } {
+    if { [is-loaded otb] } { module unload otb }
+    if { ! [is-loaded asp] } { module load asp}
+    if { [is-loaded micmac] } { module unload micmac }
+}
+
+prepend-path PYTHONPATH  $prefix/contrib/python
+setenv ASPSAR           $prefix
+prepend-path PATH  $prefix
