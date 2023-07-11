@@ -28,6 +28,7 @@ from pathlib import Path
 import datetime
 import shutil
 import docopt
+import subprocess 
 
 #############
 # FUNCTIONS #
@@ -35,7 +36,7 @@ import docopt
 
 def stereo_single_pair(data_dir, working_dir, date1, date2, update):
     # need to pass update information to sh script
-    os.system('sh run_stereo.sh {} {} {} {} {}'.format(data_dir, working_dir, date1, date2, update))
+    subprocess.call('run_stereo.sh {} {} {} {} {}'.format(data_dir, working_dir, date1, date2, update), shell=True, stdout=sys.stdout, stderr=subprocess.STDOUT, env=os.environ)
 
 def stereo_pair_list(data_dir, working_dir, pair_list, update):
     pair_df = pd.read_csv(pair_list, sep='\s+')

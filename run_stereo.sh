@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# module load asp
+#module load asp
 
 # $1 - data_dir (input of process_stereo.py), where data links are stored and parent dir of CORREL and GEOTIFF
 

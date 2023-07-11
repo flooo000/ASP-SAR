@@ -14,8 +14,8 @@ THREADS="5"
 # SET INPUT IMAGES #
 ####################
 
-BLACK_LEFT="/home/florian/ASP-SAR/contrib/data/black_left.tsai"
-BLACK_RIGHT="/home/florian/ASP-SAR/contrib/data/black_right.tsai"
+BLACK_LEFT=$ASPSAR"/contrib/data/black_left.tsai"
+BLACK_RIGHT=$ASPSAR"/contrib/data/black_right.tsai"
 
 ###################
 # STEREO SETTINGS #
@@ -46,7 +46,7 @@ PREF_KER_M="1.4" # --prefilter-kernel-width
 
 FILTERING=false
 
-RM_QUANT_PC="0.8" # --rm-quantile-percentile
+RM_QUANT_PC="1" # --rm-quantile-percentile
 RM_QUANT_MULT="1" # --rm-quantile-multiple
 RM_CLEAN_PASS="2" # --rm-cleanup-passes
 FILTER_MODE="0" # --filter-mode
