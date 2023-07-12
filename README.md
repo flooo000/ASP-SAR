@@ -8,7 +8,6 @@ The processing chain additionally compute the time series analysis with NSBAS .
 # Installation
 
 # How to use it
-
 # MASTER Toolbox coregistration
 1. Coregister SAR images using ALL2GIF.sh of MasTer toolbox (e.g. ALL2GIF.sh 20220723 /data/processing/Master/DataSAR/SAR_AUX_FILES/PARAM_FILES/PAZ/Nepal_Asc_033/LaunchMasTerParam_Single_ML1_Ampli_Ple.txt 100 100)
 2. Prepare list pair table for correlation:
@@ -22,7 +21,7 @@ The processing chain additionally compute the time series analysis with NSBAS .
 6. Adjust the correlation parameters in YOUR_PROCESSING_DIR/asp_parameters.txt (example in /contrib) and start processing: process_stereo.py --data=YOUR_PROCESSING_DIR --pairs=PAIR_LIST (the pair list is created with prepa_MSBAS.sh of MasTer toolbox. It needs to be in the same format/naming). 
 
 # Export file 
-8. Prepare the results for download/analysis in QGIS: prepare_result_export.py --data=WORKING_DIR (e.g prepare_result_export.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105/CORREL)
+8. Prepare the results for download/analysis in QGIS: prepare_result_export.py --data=WORKING_DIR (e.g prepare_result_export.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105)
 
 # Export for NSBAS time series analysis
-10. Prepare files and directory structure for NSBAS processing: prepare_nsbas_process.py --data=WORKING_DIR (e.g prepare_nsbas_process.py --data=/data/scratch/florian/correl/PAZ/Nepal_Desc_059/MATHILOAll2Gif2/CORREL/20230612_101207)
+10. Prepare files and directory structure for NSBAS processing: prepare_nsbas_process.py --data=WORKING_DIR (e.g prepare_nsbas_process.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105/)
