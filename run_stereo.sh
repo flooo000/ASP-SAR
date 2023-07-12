@@ -2,32 +2,21 @@
 
 #module load asp
 
-# $1 - data_dir (input of process_stereo.py), where data links are stored and parent dir of CORREL and GEOTIFF
-
-# work_dir is path to current run dir (TIMESTAMP)
+# correl_dir is path to current run dir (data_dir/CORREL)
 DATA_DIR=$1
-WORK_DIR=$2
+CORREL_DIR=$2
 DATE1=$3
 DATE2=$4
 # name of directory for pair processing results f.e. 20220717_20221104
 PAIR=$DATE1"_"$DATE2
 
-# use update information to load correct asp_parameters.txt
-# if update == True: use parameter file in working dir
-# if update == False: use initial parameter file in ../CORREL/
-UPDATE=$5
-echo $UPDATE
-if [ $UPDATE ]
-then
-. $WORK_DIR"/asp_parameters.txt"
-else
-. $DATA_DIR"/CORREL/asp_parameters.txt"
-fi
+# load asp_parameters.txt in DATA_DIR (DATA_DIR = WORK_DIR)
+. $DATA_DIR"/asp_parameters.txt"
 
-IMG_PRE=$1"/GEOTIFF/"$3".VV.mod_log.tif"
-IMG_POST=$1"/GEOTIFF/"$4".VV.mod_log.tif"
+IMG_PRE=$DATA_DIR"/GEOTIFF/"$3".VV.mod_log.tif"
+IMG_POST=$DATA_DIR"/GEOTIFF/"$4".VV.mod_log.tif"
 
-cd $WORK_DIR
+cd $CORREL_DIR
 
 mkdir $PAIR
 

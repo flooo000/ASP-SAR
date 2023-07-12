@@ -19,7 +19,7 @@ def init_asp_parameters(correl_path):
 # GENERAL VARIABLES #
 #####################
 
-THREADS="10"
+THREADS="5"
 
 ####################
 # SET INPUT IMAGES #
@@ -37,10 +37,10 @@ SESSION_TYPE="pinhole" # -t
 A_M="none" # --alignment-method
 DATUM="wgs84" # --datum
 OUTPUT_DIR="asp/correl" #creates dir within working dir - every created dataset starts with correl-
-NO_DATA_S="0" # --nodata_value stereo
+NO_DATA_S="-9999" # --nodata_value stereo
 CORR_KERNEL="7 7" # --corr_kernel
 COST_MODE="3" # --cost-mode
-ST_ALG="asp_mgm" # --stereo_algorithm
+ST_ALG="asp_final_mgm" # --stereo_algorithm
 CORR_T_S="1024" # --corr-tile-size
 SUBP_MODE="9" # --subpixel-mode
 SUBP_KERNEL="5 5" # --subpixel-kernel
@@ -58,7 +58,7 @@ PREF_KER_M="1.5" # --prefilter-kernel-width
 
 FILTERING=false
 
-RM_QUANT_PC="0.8" # --rm-quantile-percentile
+RM_QUANT_PC="1" # --rm-quantile-percentile
 RM_QUANT_MULT="1" # --rm-quantile-multiple
 RM_CLEAN_PASS="2" # --rm-cleanup-passes
 FILTER_MODE="1" # --filter-mode
@@ -66,7 +66,9 @@ RM_HALF_KERN="5 5" # --rm-half-kernel
 # 29.03 added
 RM_MIN_MAT="50" # --rm-min-matches
 RM_TH="3" # --rm-threshold
-
+MED_FILTER_SIZE="3" # --median-filter-size: Filter subpixel results with a median
+TEXT_SMOOTH_SIZE="13" # --texture-smooth-size: Kernel size to perform texture aware disparity smoothing
+TEXT_SMOOTH_SCALE="0.13" #--texture-smooth-scale # range of 0.13 to 0.15 is typical
 
 """.format(black_img_dir, black_img_dir)
 

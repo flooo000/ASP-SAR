@@ -149,7 +149,7 @@ def prepare_process_directories(nsbas_input_dir, nsbas_process_path, orientation
 
 arguments = docopt.docopt(__doc__)
 
-# path to working directory
+# path to data dir (former  working directory)
 work_dir = arguments['--data']
 
 nsbas_process_dir = os.path.join(work_dir, 'NSBAS_PROCESS')
@@ -157,8 +157,10 @@ Path(nsbas_process_dir).mkdir(parents=True, exist_ok=True)
 
 nsbas_input_dir = os.path.join(work_dir, 'EXPORT', 'NSBAS')
 
+# TODO: check this part again - maybe give as parameter
+correl_dir = os.path.join(work_dir, 'CORREL')
 # get table file -> must be in format table_[...].txt
-pair_table = [os.path.join(work_dir, f) for f in os.listdir(work_dir) if os.path.isfile(os.path.join(work_dir, f)) and f.split('_')[0] == 'table'][0]
+pair_table = [os.path.join(correl_dir, f) for f in os.listdir(correl_dir) if os.path.isfile(os.path.join(work_dir, f)) and f.split('_')[0] == 'table'][0]
 date_list_file = os.path.join(nsbas_input_dir, 'dates_list.txt')
 
 

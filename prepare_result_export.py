@@ -185,7 +185,11 @@ list_pair
 
 arguments = docopt.docopt(__doc__)
 
+# work_dir is data_dir from before, because everything is in one directory
 work_dir = arguments['--data']
+
+# correl_dir is like working_dir, all the processing results are stored in data_dir/CORREL
+correl_dir = os.path.join(work_dir, 'CORREL')
 
 # get azimuth and slant range sampling for pixel to m conversion
 sampling_file = os.path.join(os.path.dirname(work_dir), 'sampling.txt')
@@ -206,7 +210,7 @@ Path(os.path.join(nsbas_dir, 'H')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(nsbas_dir, 'V')).mkdir(parents=True, exist_ok=True)
 
 # get list of only DATE1_DATE2 directories
-dir_list=[os.path.join(work_dir, d) for d in os.listdir(work_dir) if len(d) == 17]
+dir_list=[os.path.join(correl_dir, d) for d in os.listdir(correl_dir) if len(d) == 17]
 
 print('##################################')
 print('PROCESS AND COPY DISPARITY MAPS')
@@ -231,7 +235,7 @@ for d in dir_list:
     else:
         print('No correl-F.tif file found in {}'.format(curr_pair))
         # add to print names to list
-        missing_correl_file = os.path.join(work_dir, 'missing_correl_files.txt')
+        missing_correl_file = os.path.join(correl_dir, 'missing_correl_files.txt')
         if(os.path.isfile(missing_correl_file)):
             with open(missing_correl_file, 'a') as miss_file:
                 miss_file.write('{}\t{}\n'.format(curr_pair.split('_')[0], curr_pair.split('_')[1]))

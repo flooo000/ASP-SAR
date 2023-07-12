@@ -138,10 +138,11 @@ else:
     Path(os.path.join(dst_path, 'GEOTIFF')).mkdir(parents=True, exist_ok=True)
     Path(os.path.join(dst_path, 'CORREL')).mkdir(parents=True, exist_ok=True)
     correl_path = os.path.join(dst_path, 'CORREL')
-    
-    init_asp_parameters(correl_path)
+   
+    # save asp_parameters and sampling in destination directory instead of CORREL
+    init_asp_parameters(dst_path)
 
-    get_az_range_sampling(data_path_list, correl_path)
+    get_az_range_sampling(data_path_list, dst_path)
 
 
 
