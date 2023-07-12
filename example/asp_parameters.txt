@@ -43,17 +43,6 @@ PREF_MODE="2" # --prefilter-mode
 PREF_KER_M="1.4" # --prefilter-kernel-width
 
 # Filtering #
-
-FILTERING=false
-
-RM_QUANT_PC="1" # --rm-quantile-percentile
-RM_QUANT_MULT="1" # --rm-quantile-multiple
-RM_CLEAN_PASS="2" # --rm-cleanup-passes
-FILTER_MODE="0" # --filter-mode
-RM_HALF_KERN="5 5" # --rm-half-kernel
-# 29.03 added
-RM_MIN_MAT="50" # --rm-min-matches
-RM_TH="3" # --rm-threshold
 FILTER_MODE="1" # --filter-mode
 MED_FILTER_SIZE="3" # --median-filter-size: Filter subpixel results with a median
 TEXT_SMOOTH_SIZE="13" # --texture-smooth-size: Kernel size to perform texture aware disparity smoothing
