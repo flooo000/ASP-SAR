@@ -192,7 +192,7 @@ work_dir = arguments['--data']
 correl_dir = os.path.join(work_dir, 'CORREL')
 
 # get azimuth and slant range sampling for pixel to m conversion
-sampling_file = os.path.join(os.path.dirname(work_dir), 'sampling.txt')
+sampling_file = os.path.join(work_dir, 'sampling.txt')
 sampling = pd.read_csv(sampling_file, sep='\t')
 az_sampl, range_sampl = sampling['AZ'][0], sampling['SR'][0]
 

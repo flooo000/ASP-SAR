@@ -7,7 +7,7 @@ import os, sys
 
 def init_asp_parameters(correl_path):
 
-    black_img_dir = os.path.join(os.getcwd(), 'contrib', 'data')
+    black_img_dir = os.path.join(os.environ["ASPSAR"], 'contrib', 'data')
     asp_parameter_content = """
 ####################
 ## PARAMETER FILE ##
