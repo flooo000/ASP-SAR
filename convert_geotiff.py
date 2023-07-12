@@ -30,11 +30,11 @@ import docopt
 # FUNCTIONS #
 #############
 
-def save_to_file(amp, output_path, ncol, nrow):
+def save_to_file(data, output_path, ncol, nrow):
     drv = gdal.GetDriverByName('GTiff')
     dst_ds = drv.Create(output_path, ncol, nrow, 1, gdal.GDT_Float32)
     dst_band = dst_ds.GetRasterBand(1)
-    dst_band.WriteArray(amp)
+    dst_band.WriteArray(data)
 
 def convert_single_file(input_file, img_dim):
 
@@ -87,10 +87,11 @@ def get_img_dimensions(input_file):
         return (ncol, nrow, True)
 
 
-def get_mean_sigma_amplitude(geotiff_dir, img_dim, remark):
+def get_mean_sigma_amplitude(geotiff_dir, img_dim):
 
     ncol, nrow = img_dim[0], img_dim[1]
-    stack, sigma, weight = np.zeros((nrow, ncol)), np.zeros((nrow, ncol)),np.zeros((nrow, ncol))
+    stack, sigma, weight = np.zeros((nrow, ncol)), np.zeros((nrow, ncol)), np.zeros((nrow, ncol))
+    stack_norm, sigma_norm = np.zeros((nrow, ncol)), np.zeros((nrow, ncol))
 
     for f in os.listdir(geotiff_dir):
         # just use DATE.VV.mod_log.tif images; important if AMPLI_STACK_SIGMA was already calculated
@@ -106,7 +107,10 @@ def get_mean_sigma_amplitude(geotiff_dir, img_dim, remark):
         
             stack = stack + amp
             sigma = sigma + amp**2
-        
+            
+            stack_norm = stack_norm + (amp / np.nanmean(amp))
+            sigma_norm = sigma_norm + (amp / np.nanmean(amp))**2
+
         # weight == N
         # weight is a matrix -> have the N information for every pixel
             w = np.zeros((nrow, ncol))
@@ -119,28 +123,20 @@ def get_mean_sigma_amplitude(geotiff_dir, img_dim, remark):
     # compute mean of amplitude stack and sigma
     # mean_stack = stack / N_img (weight)
     stack[weight > 0] = stack[weight > 0] / weight[weight > 0]
-    #sigma[weight > 0] = np.sqrt(sigma[weight > 0] / weight[weight > 0] - (stack[weight > 0] / weight[weight > 0])**2)
     sigma[weight > 0] = np.sqrt(sigma[weight > 0] / weight[weight > 0] - (stack[weight > 0])**2)
     da = np.zeros((nrow, ncol))
     da[sigma > 0] = 1./sigma[sigma > 0]
-    
-    # save to file in GEOTIFF dir
-    outfile = os.path.join(geotiff_dir, 'AMPLI_STACK_SIGMA_{}.tif'.format(remark))
-    drv = gdal.GetDriverByName('GTiff')
-    dst_ds = drv.Create(outfile, ncol, nrow, 3, gdal.GDT_Float32)
+   
+    #stack_norm[weight > 0] = stack[weight > 0] / np.nanmean(stack[weight > 0])
+    stack_norm[weight > 0] = stack_norm[weight > 0] / weight[weight > 0]
+    sigma_norm[weight > 0] = np.sqrt(sigma_norm[weight > 0] / weight[weight > 0] - stack_norm[weight > 0]**2)
 
-    dst_band1 = dst_ds.GetRasterBand(1)
-    dst_band2 = dst_ds.GetRasterBand(2)
-    dst_band3 = dst_ds.GetRasterBand(3)
+    save_to_file(stack, os.path.join(geotiff_dir, 'AMPLI_MEAN.tif'), ncol, nrow)
+    save_to_file(sigma, os.path.join(geotiff_dir, 'AMPLI_SIGMA.tif'), ncol, nrow)
+    save_to_file(da, os.path.join(geotiff_dir, 'AMPLI_dSIMGA.tif'), ncol, nrow)
 
-    # first band: MEAN AMPLI
-    dst_band1.WriteArray(stack)
-    # second band: INVERSE SIGMA
-    dst_band2.WriteArray(da)
-    # third band: SIGMA
-    dst_band3.WriteArray(sigma)
-
-    del dst_ds
+    save_to_file(stack_norm, os.path.join(geotiff_dir, 'AMPLI_MEAN_NORM.tif'), ncol, nrow)
+    save_to_file(sigma_norm, os.path.join(geotiff_dir, 'AMPLI_SIGMA_NORM.tif'), ncol, nrow)
 
 ########
 # MAIN #
@@ -178,6 +174,6 @@ for f in os.listdir(input_path):
 
 
 # process AMPLI_STACK_SIGMA each time to always include all images
-print('Start AMPLI_STACK_SIGMA')
-get_mean_sigma_amplitude(os.path.join(input_path, 'GEOTIFF'), IMG_DIM, '3')    
+print('Start AMPLI_MEAN and SIGMA calculation')
+get_mean_sigma_amplitude(os.path.join(input_path, 'GEOTIFF'), IMG_DIM)    
 
