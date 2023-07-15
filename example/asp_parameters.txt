@@ -39,7 +39,7 @@ MIN_XCORR_LVL="0" # --min-xcorr-level
 SGM_C_SIZE="512" # --sgm-collar-size
 
 # 31.03 added
-PREF_MODE="2" # --prefilter-mode
+PREF_MODE="2" # --prefilter-mode 0: None, 2: Gaussian (not sure we should filter input SLCs)
 PREF_KER_M="1.4" # --prefilter-kernel-width
 
 # Filtering #
