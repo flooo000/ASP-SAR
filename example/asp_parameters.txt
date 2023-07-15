@@ -26,13 +26,13 @@ A_M="none" # --alignment-method
 DATUM="wgs84" # --datum
 OUTPUT_DIR="asp/correl" #creates dir within working dir - every created dataset starts with correl-
 NO_DATA_S="-9999" # --nodata_value stereo
-CORR_KERNEL="7 7" # --corr_kernel
-COST_MODE="3" # --cost-mode
+CORR_KERNEL="7 7" # --corr_kernel # increase if you see too many holes in your correlation maps
+COST_MODE="3" # --cost-mode # use 2 for more robustness 
 ST_ALG="asp_final_mgm" # --stereo_algorithm
 CORR_T_S="1024" # --corr-tile-size
 SUBP_MODE="9" # --subpixel-mode
 SUBP_KERNEL="5 5" # --subpixel-kernel
-CORR_S_MODE="1" # --corr_seed_mode
+CORR_S_MODE="1" # --corr_seed_mode # use 0 if you want to skip low disparity computation
 
 XCORR_TH="2" # --xcorr-threshold
 MIN_XCORR_LVL="0" # --min-xcorr-level
