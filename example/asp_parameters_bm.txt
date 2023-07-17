@@ -1,0 +1,50 @@
+
+## PARAMETER FILE ##
+####################
+
+# INFO:
+
+#####################
+# GENERAL VARIABLES #
+#####################
+
+THREADS="5"
+
+####################
+# SET INPUT IMAGES #
+####################
+
+BLACK_LEFT=$ASPSAR"/contrib/data/black_left.tsai"
+BLACK_RIGHT=$ASPSAR"/contrib/data/black_right.tsai"
+
+###################
+# STEREO SETTINGS #
+###################
+
+SESSION_TYPE="pinhole" # -t
+A_M="none" # --alignment-method
+DATUM="wgs84" # --datum
+OUTPUT_DIR="asp/correl" #creates dir within working dir - every created dataset starts with correl-
+NO_DATA_S="-9999" # --nodata_value stereo
+CORR_KERNEL="15 15" # --corr_kernel # increase if you see too many holes in your correlation maps
+COST_MODE="2" # --cost-mode # use 2 for more robustness 
+ST_ALG="asp_bm" # --stereo_algorithm
+CORR_T_S="1024" # --corr-tile-size
+SUBP_MODE="1" # --subpixel-mode
+SUBP_KERNEL="25 25" # --subpixel-kernel
+CORR_S_MODE="1" # --corr_seed_mode # use 0 if you want to skip low disparity computation
+
+XCORR_TH="2" # --xcorr-threshold
+MIN_XCORR_LVL="0" # --min-xcorr-level
+SGM_C_SIZE="512" # --sgm-collar-size
+
+# 31.03 added
+PREF_MODE="2" # --prefilter-mode 0: None, 2: Gaussian (not sure we should filter input SLCs)
+PREF_KER_M="1.4" # --prefilter-kernel-width
+
+# Filtering #
+FILTER_MODE="1" # --filter-mode
+MED_FILTER_SIZE="3" # --median-filter-size: Filter subpixel results with a median
+TEXT_SMOOTH_SIZE="13" # --texture-smooth-size: Kernel size to perform texture aware disparity smoothing
+TEXT_SMOOTH_SCALE="0.13" #--texture-smooth-scale # range of 0.13 to 0.15 is typical
+
