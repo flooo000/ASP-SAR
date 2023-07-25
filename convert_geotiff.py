@@ -68,7 +68,7 @@ def get_img_dimensions(input_file):
     i12_path = os.path.dirname(os.path.dirname(real_path))
     insar_param_file = os.path.join(i12_path, 'TextFiles', 'InSARParameters.txt')
     
-    print('InSAR file: {}'.format(insar_param_file))
+    #print('InSAR file: {}'.format(insar_param_file))
     with open(insar_param_file, 'r') as f:
         # read lines of file and remove whitespace and comments (comments after \t\t)
         lines = [''.join(l.strip().split('\t\t')[0]) for l in f.readlines()]
@@ -145,20 +145,38 @@ def get_mean_sigma_amplitude(geotiff_dir, img_dim):
 arguments = docopt.docopt(__doc__)
 
 input_path = arguments['--data']
-IMG_DIM = ()
+all_file_df = pd.DataFrame(columns=['file', 'ncol', 'nrow'])
 
 geotiff_dir = os.path.join(input_path, 'GEOTIFF')
 Path(geotiff_dir).mkdir(parents=True, exist_ok=True)
 
 for f in os.listdir(input_path):
     if(os.path.splitext(f)[1] == '.mod'):
-        IMG_DIM = get_img_dimensions(os.path.join(input_path, f))
+        img_dims = get_img_dimensions(os.path.join(input_path, f))
         # if true, dimensions found and use them for processing, else continue
         # bc all images have same dimension after ALL2GIF processing
-        if(IMG_DIM[2]):
-            break
-        else:
-            continue
+        new_row = pd.DataFrame([{'file': f, 'ncol': img_dims[0], 'nrow': img_dims[1]}])
+        all_file_df = pd.concat([all_file_df, new_row], ignore_index=True)
+        
+# more stable way to get image dimension, get value with most occurences for ncol and nrow as final values
+# after this - use values to find images with different dimensions
+# especially for S1 
+ncol_max = all_file_df['ncol'].value_counts().idxmax()
+nrow_max = all_file_df['nrow'].value_counts().idxmax()
+
+# set image dimensions for further processing
+IMG_DIM = (int(ncol_max), int(nrow_max))
+
+# only expect differences for nrow - S1
+ncol_differences = all_file_df.index[all_file_df['ncol'] != ncol_max]
+nrow_differences = all_file_df.index[all_file_df['nrow'] != nrow_max]
+
+ind_differences = ncol_differences.append(nrow_differences)
+
+# get files with different extents and save in file
+corrupt_file_df = all_file_df.iloc[ind_differences]
+corrupt_file_df.to_csv(os.path.join(geotiff_dir, 'corrupt_data.txt'), sep='\t')
+
 print('############################')
 print('START CONVERSION')
 print('############################')
@@ -169,11 +187,14 @@ for f in os.listdir(input_path):
         if(os.path.isfile(os.path.join(geotiff_dir, '{}_log.tif'.format(f)))):
             continue
         else:
-            print('Start processing: {}'.format(f))
-            convert_single_file(os.path.join(input_path, f), IMG_DIM)
+            # if file has different extent - skip
+            if(f in corrupt_file_df['file'].values):
+                continue
+            else:
+                print('Start processing: {}'.format(f))
+                convert_single_file(os.path.join(input_path, f), IMG_DIM)
 
 
 # process AMPLI_STACK_SIGMA each time to always include all images
 print('Start AMPLI_MEAN and SIGMA calculation')
 get_mean_sigma_amplitude(os.path.join(input_path, 'GEOTIFF'), IMG_DIM)    
-
