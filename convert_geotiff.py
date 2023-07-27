@@ -87,7 +87,7 @@ def get_img_dimensions(input_file):
         return (ncol, nrow, True)
 
 
-def get_mean_sigma_amplitude(geotiff_dir, img_dim):
+def get_mean_sigma_amplitude(geotiff_dir, img_dim, corrupt_file_df):
 
     ncol, nrow = img_dim[0], img_dim[1]
     stack, sigma, weight = np.zeros((nrow, ncol)), np.zeros((nrow, ncol)), np.zeros((nrow, ncol))
@@ -95,30 +95,33 @@ def get_mean_sigma_amplitude(geotiff_dir, img_dim):
 
     for f in os.listdir(geotiff_dir):
         # just use DATE.VV.mod_log.tif images; important if AMPLI_STACK_SIGMA was already calculated
-        if(len(f.split('.')[0]) == 8):
-            print('Start: {}'.format(f))
-        
+        if(f in corrupt_file_df['file'].values):
+            print('Skip: {}'.format(f))    
+        else:
+            #if(len(f.split('.')[0]) == 8):
+            if('.mod_log.tif' in f):
+                print('Start: {}'.format(f))
         # change to read data with gdal
-            ds = gdal.OpenEx(os.path.join(geotiff_dir, f), allowed_drivers=['GTiff'])
-            ds_band = ds.GetRasterBand(1)
+                ds = gdal.OpenEx(os.path.join(geotiff_dir, f), allowed_drivers=['GTiff'])
+                ds_band = ds.GetRasterBand(1)
         
         # geotiff data contains log of amplitude
-            amp = ds_band.ReadAsArray(0, 0, ds.RasterXSize, ds.RasterYSize)
+                amp = ds_band.ReadAsArray(0, 0, ds.RasterXSize, ds.RasterYSize)
         
-            stack = stack + amp
-            sigma = sigma + amp**2
+                stack = stack + amp
+                sigma = sigma + amp**2
             
-            stack_norm = stack_norm + (amp / np.nanmean(amp))
-            sigma_norm = sigma_norm + (amp / np.nanmean(amp))**2
+                stack_norm = stack_norm + (amp / np.nanmean(amp))
+                sigma_norm = sigma_norm + (amp / np.nanmean(amp))**2
 
         # weight == N
         # weight is a matrix -> have the N information for every pixel
-            w = np.zeros((nrow, ncol))
-            index = np.nonzero(amp)
+                w = np.zeros((nrow, ncol))
+                index = np.nonzero(amp)
         # if img is empty/NaN, will not be added to N(weight)
-            w[index] = 1
-            weight = weight + w
-            print('Finished: {}'.format(f))
+                w[index] = 1
+                weight = weight + w
+                print('Finished: {}'.format(f))
 
     # compute mean of amplitude stack and sigma
     # mean_stack = stack / N_img (weight)
@@ -194,7 +197,8 @@ for f in os.listdir(input_path):
                 print('Start processing: {}'.format(f))
                 convert_single_file(os.path.join(input_path, f), IMG_DIM)
 
+print(corrupt_file_df)
 
 # process AMPLI_STACK_SIGMA each time to always include all images
 print('Start AMPLI_MEAN and SIGMA calculation')
-get_mean_sigma_amplitude(os.path.join(input_path, 'GEOTIFF'), IMG_DIM)    
+get_mean_sigma_amplitude(os.path.join(input_path, 'GEOTIFF'), IMG_DIM, corrupt_file_df)    
