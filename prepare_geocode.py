@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 prepare_geocode.py
 --------------
@@ -8,7 +10,7 @@ prepare_geocode.py -h | --help
 
 Options:
 -h | --help             Show this screen
---data                  Path to NSBAS directory
+--data                  Path to NSBAS directory (in /EXPORT directory)
 --dest                  Path to destination directory [default: create TO_GEOCODE in EXPORT directory]
 
 """
@@ -37,14 +39,14 @@ def link_all_data(input_dir, dest_dir):
         if(len(f.split('.')) == 2):
             # f is filename
             print('Link {}'.format(f))
-            os.symlink(os.path.join(input_dir, f), os.path.join(dest_dir, 'REGEOC_{}'.format(f)))
+            os.symlink(os.path.join(input_dir, f), os.path.join(dest_dir, 'REGEOC.{}'.format(f)))
 
 def copy_all_data(input_dir, dest_dir):
     for f in os.listdir(input_dir):
         if(len(f.split('.')) == 2):
             # f is filename
             print('Copy {}'.format(f))
-            shutil.copy(os.path.join(input_dir, f), os.path.join(dest_dir, 'REGEOC_{}'.format(f)))
+            shutil.copy(os.path.join(input_dir, f), os.path.join(dest_dir, 'REGEOC.{}'.format(f)))
 
 
 ########
