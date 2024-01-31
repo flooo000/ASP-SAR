@@ -228,8 +228,12 @@ for d in dir_list:
         subtract_median(h_path, os.path.join(adj_dir, '{}-F-H_wm.tif'.format(curr_pair)), 1, range_sampl)
         subtract_median(v_path, os.path.join(adj_dir, '{}-F-V_wm.tif'.format(curr_pair)), 2, az_sampl)
 
-        shutil.copy(h_path, os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))
-        shutil.copy(v_path, os.path.join(raw_dir, '{}-F-V.tif'.format(curr_pair)))
+        # instead of copying, just link raw data to save space (maybe remove later)
+        #shutil.copy(h_path, os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))
+        #shutil.copy(v_path, os.path.join(raw_dir, '{}-F-V.tif'.format(curr_pair)))
+
+        os.symlink(h_path, os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))
+        os.symlink(v_path, os.path.join(raw_dir, '{}-F-V.tif'.format(curr_pair)))
 
         print('Finished pair: {}'.format(os.path.basename(d)))
     else:
