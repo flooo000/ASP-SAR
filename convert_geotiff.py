@@ -6,12 +6,13 @@ convert_geotiff.py
 Converts the ALL2GIF results to GeoTIFF. It takes the log() of the input image.
 An additional file is created (AMPLI_STACK_SIGMA_3.tif) with mean, 1/sigma and sigma as bands.
 
-Usage: prepare_correl_dir.py --data=<path>
+Usage: prepare_correl_dir.py --data=<path> [--f]
 prepare_correl_dir.py -h | --help
 
 Options:
 -h | --help         Show this screen
 --data              Path to directory with linked data
+--f                 Force recomputation of all files
 
 """
 ##########
@@ -150,7 +151,14 @@ arguments = docopt.docopt(__doc__)
 input_path = arguments['--data']
 all_file_df = pd.DataFrame(columns=['file', 'ncol', 'nrow'])
 
+force = arguments['--f']
+
 geotiff_dir = os.path.join(input_path, 'GEOTIFF')
+
+if(force):
+    shutil.rmtree(geotiff_dir)
+
+# create GEOTIFF directory
 Path(geotiff_dir).mkdir(parents=True, exist_ok=True)
 
 for f in os.listdir(input_path):
@@ -197,7 +205,6 @@ for f in os.listdir(input_path):
                 print('Start processing: {}'.format(f))
                 convert_single_file(os.path.join(input_path, f), IMG_DIM)
 
-print(corrupt_file_df)
 
 # process AMPLI_STACK_SIGMA each time to always include all images
 print('Start AMPLI_MEAN and SIGMA calculation')
