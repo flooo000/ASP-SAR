@@ -5,13 +5,13 @@ prepare_result_export.py
 -------------
 Prepares an EXPORT directory to easily download the data. Adjusts the data by subtracting the median from each disparity map. Prepares the necessary files for the NSBAS processing.
 
-Usage: prepare_result_export.py [--u] --data=<path>
+Usage: prepare_result_export.py [--f] --data=<path>
 prepare_result_export.py -h | --help
 
 Options:
 -h | --help         Show this screen
 --data              Path to working directory 
---u                 Update the results (TO BE IMPLEMENTED 03.07.23)
+--f                 Force recomputation of EXPORT directory
 
 """
 ##########
@@ -188,6 +188,9 @@ arguments = docopt.docopt(__doc__)
 # work_dir is data_dir from before, because everything is in one directory
 work_dir = arguments['--data']
 
+# check for force recomputation - will remove current EXPORT/ADJUSTED, /NSBAS, /RAW directory 
+force = arguments['--f']
+
 # correl_dir is like working_dir, all the processing results are stored in data_dir/CORREL
 correl_dir = os.path.join(work_dir, 'CORREL')
 
@@ -196,15 +199,24 @@ sampling_file = os.path.join(work_dir, 'sampling.txt')
 sampling = pd.read_csv(sampling_file, sep='\t')
 az_sampl, range_sampl = sampling['AZ'][0], sampling['SR'][0]
 
+# prepare directories
 exp_dir = os.path.join(work_dir, 'EXPORT')
 Path(exp_dir).mkdir(parents=True, exist_ok=True)
 
 raw_dir = os.path.join(exp_dir, 'RAW')
 adj_dir = os.path.join(exp_dir, 'ADJUSTED')
+nsbas_dir = os.path.join(exp_dir, 'NSBAS')
+
+if(force):
+    print('FORCE RECOMPUTATION: REMOVE EXPORT/ADJUSTED, EXPORT/NSBAS, EXPORT/RAW')
+    shutil.rmtree(raw_dir)
+    shutil.rmtree(adj_dir)
+    shutil.rmtree(nsbas_dir)
+    
+# check and create subdirectories
 Path(raw_dir).mkdir(parents=True, exist_ok=True)
 Path(adj_dir).mkdir(parents=True, exist_ok=True)
 
-nsbas_dir = os.path.join(exp_dir, 'NSBAS')
 Path(nsbas_dir).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(nsbas_dir, 'H')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(nsbas_dir, 'V')).mkdir(parents=True, exist_ok=True)
