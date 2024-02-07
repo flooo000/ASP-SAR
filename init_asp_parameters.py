@@ -25,7 +25,6 @@ THREADS="5"
 # SET INPUT IMAGES #
 ####################
 
-# in new version, path is changed 
 BLACK_LEFT="{}/black_left.tsai"
 BLACK_RIGHT="{}/black_right.tsai"
 
@@ -35,7 +34,6 @@ BLACK_RIGHT="{}/black_right.tsai"
 
 SESSION_TYPE="pinhole" # -t
 A_M="none" # --alignment-method
-DATUM="wgs84" # --datum
 OUTPUT_DIR="asp/correl" #creates dir within working dir - every created dataset starts with correl-
 NO_DATA_S="-9999" # --nodata_value stereo
 CORR_KERNEL="7 7" # --corr_kernel
@@ -50,14 +48,12 @@ XCORR_TH="2.0" # --xcorr-threshold
 MIN_XCORR_LVL="0" # --min-xcorr-level
 SGM_C_SIZE="512" # --sgm-collar-size
 
-# 31.03 added
-PREF_MODE="2" # --prefilter-mode
-PREF_KER_M="1.5" # --prefilter-kernel-width
-
 # Filtering #
 FILTER_MODE="1" # --filter-mode
+RM_QUANT_MULT="1" # --rm-quantile-multiple
+
 MED_FILTER_SIZE="3" # --median-filter-size: Filter subpixel results with a median
-TEXT_SMOOTH_SIZE="13" # --texture-smooth-size: Kernel size to perform texture aware disparity smoothing
+TEXT_SMOOTH_SIZE="3" # --texture-smooth-size: Kernel size to perform texture aware disparity smoothing
 TEXT_SMOOTH_SCALE="0.13" #--texture-smooth-scale # range of 0.13 to 0.15 is typical
 
 """.format(black_img_dir, black_img_dir)

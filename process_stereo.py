@@ -35,9 +35,8 @@ import subprocess
 #############
 
 def stereo_single_pair(data_dir, correl_dir, date1, date2):
-    # need to pass update information to sh script
-    # TODO:check if update is needed
-    subprocess.call('run_stereo.sh {} {} {} {}'.format(data_dir, correl_dir, date1, date2), shell=True, stdout=sys.stdout, stderr=subprocess.STDOUT, env=os.environ)
+    subprocess.call('/home/florian/ASP-SAR/run_stereo.sh {} {} {} {}'.format(data_dir, correl_dir, date1, date2), shell=True, stdout=sys.stdout, stderr=subprocess.STDOUT, env=os.environ)
+    
 
 def stereo_pair_list(data_dir, correl_dir, pair_list):
     pair_df = pd.read_csv(pair_list, sep='\s+')
@@ -45,7 +44,8 @@ def stereo_pair_list(data_dir, correl_dir, pair_list):
     # copy file to dir instead of using link -> if original is changed, no impact in dir
     # check if table file is already existing, if yes - replace
     shutil.copy(pair_list, os.path.join(correl_dir, os.path.basename(pair_list)))
-
+    
+    # if pair already exists - skip 
     for index, rows in pair_df.iterrows():
         date1, date2 = rows['Master'], rows['Slave']
         if(os.path.isdir(os.path.join(correl_dir, '{}_{}'.format(date1, date2)))):
@@ -90,6 +90,7 @@ if(force):
 now = datetime.datetime.now()
 timestamp = now.strftime('%Y%m%d_%H%M%S')
 
+#TODO: replace with logger instead of file
 if(os.path.isfile(os.path.join(data_dir, 'info_log.txt'))):
     with open(os.path.join(data_dir, 'info_log.txt'), 'a') as info_file:
         info_file.write('{}:{} {} {} {}\n'.format(timestamp, 'process_stereo.py', data_dir, pair_list, force))
