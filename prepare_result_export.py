@@ -59,6 +59,14 @@ def subtract_median(input_file, output_path, n_band, sampling):
     # add conversion from pixel to m displacement here
     save_to_file(adj_disparity, output_path, ncol, nrow)
 
+def get_cc_map(input_file, output_path, n_band):
+    # img_data = (correlation coefficient, ncol, nrow)
+    img_data = read_from_file(input_file, n_band)
+    cc, ncol, nrow = img_data[0], img_data[1], img_data[2]
+
+    save_to_file(cc, output_path, ncol, nrow)
+
+
 # input_file = either to H_wm or V_wm file
 # direction - information of direction; either H or V (for naming of resulting files)
 def process_single_disparity_NSBAS(input_file, direction):
@@ -207,6 +215,8 @@ raw_dir = os.path.join(exp_dir, 'RAW')
 adj_dir = os.path.join(exp_dir, 'ADJUSTED')
 nsbas_dir = os.path.join(exp_dir, 'NSBAS')
 
+cc_dir = os.path.join(exp_dir, 'CC')
+
 if(force):
     print('FORCE RECOMPUTATION: REMOVE EXPORT/ADJUSTED, EXPORT/NSBAS, EXPORT/RAW')
     shutil.rmtree(raw_dir)
@@ -221,6 +231,9 @@ Path(nsbas_dir).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(nsbas_dir, 'H')).mkdir(parents=True, exist_ok=True)
 Path(os.path.join(nsbas_dir, 'V')).mkdir(parents=True, exist_ok=True)
 
+Path(cc_dir).mkdir(parents=True, exist_ok=True)
+
+
 # get list of only DATE1_DATE2 directories
 dir_list=[os.path.join(correl_dir, d) for d in os.listdir(correl_dir) if len(d) == 17]
 
@@ -234,18 +247,36 @@ for d in dir_list:
     # use here the complete correl-F instead of the disparitydebug results
     v_path = os.path.join(d, 'asp', 'correl-F.tif')
     h_path = os.path.join(d, 'asp', 'correl-F.tif')
+    cc_path = os.path.join(d, 'asp', 'correl-F.tif')
     
     if(os.path.isfile(v_path)):
         # add n_band based on direction
-        subtract_median(h_path, os.path.join(adj_dir, '{}-F-H_wm.tif'.format(curr_pair)), 1, range_sampl)
-        subtract_median(v_path, os.path.join(adj_dir, '{}-F-V_wm.tif'.format(curr_pair)), 2, az_sampl)
+
+        if(os.path.isfile(os.path.join(adj_dir, '{}-F-H_wm.tif'.format(curr_pair)))):
+                print('Skip {}-F-H_wm.tif, already exists'.format(curr_pair))
+        else:
+            subtract_median(h_path, os.path.join(adj_dir, '{}-F-H_wm.tif'.format(curr_pair)), 1, range_sampl)
+        
+        if(os.path.isfile(os.path.join(adj_dir, '{}-F-V_wm.tif'.format(curr_pair)))):
+            print('Skip {}-F-V_wm.tif, already exists'.format(curr_pair))
+        else:
+            subtract_median(v_path, os.path.join(adj_dir, '{}-F-V_wm.tif'.format(curr_pair)), 2, az_sampl)
+        
+        if(os.path.isfile(os.path.join(adj_dir, '{}_CC.tif'.format(curr_pair)))):
+            print('Skip {}_CC.tif, already exists'.format(curr_pair))
+        else:
+            # gets the 3rd band from correl-F.tif which contains correlation coeffiecent map
+            get_cc_map(cc_path, os.path.join(cc_dir, '{}_CC.tif'.format(curr_pair)), 3)
 
         # instead of copying, just link raw data to save space (maybe remove later)
         #shutil.copy(h_path, os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))
         #shutil.copy(v_path, os.path.join(raw_dir, '{}-F-V.tif'.format(curr_pair)))
 
-        os.symlink(h_path, os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))
-        os.symlink(v_path, os.path.join(raw_dir, '{}-F-V.tif'.format(curr_pair)))
+        if(os.path.isfile(os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))):
+            print('Skip linking of {}'.format(curr_pair))
+        else:
+            os.symlink(h_path, os.path.join(raw_dir, '{}-F-H.tif'.format(curr_pair)))
+            os.symlink(v_path, os.path.join(raw_dir, '{}-F-V.tif'.format(curr_pair)))
 
         print('Finished pair: {}'.format(os.path.basename(d)))
     else:
@@ -258,6 +289,8 @@ for d in dir_list:
         else:    
             with open(missing_correl_file, 'w') as miss_file:
                 miss_file.write('{}\t{}\n'.format(curr_pair.split('_')[0], curr_pair.split('_')[1]))
+
+# maybe add here masking based on CC_map - set input option to apply  optional 
 
 print('##################################')
 print('PREPARE NSBAS')
