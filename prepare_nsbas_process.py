@@ -5,12 +5,13 @@ prepare_nsbas_process.py
 ---------------
 Prepare the necessary files and directory structure for the NSBAS time series processing.
 
-Usage: prepare_nsbas_process.py --data=<path>
+Usage: prepare_nsbas_process.py --data=<path> [--masked]
 prepare_nsbas_process.py -h | --help
 
 Options:
 -h | --help         Show this screen
 --data              Path to working directory to prepare
+--masked            Use the masked files to prepare NSBAS processing
 
 """
 ##########
@@ -108,13 +109,28 @@ def generate_list_dates(process_orient_dir, date_list_file, pair_table):
     out_df.to_csv(os.path.join(process_orient_dir, 'list_dates'), sep=' ', header=False, index=False)
 
 # orientation is 'H' or 'V'
-def prepare_process_directories(nsbas_input_dir, nsbas_process_path, orientation, pair_table, date_list_file):
+# if masked data is used, nsbas_input_dir = NSBAS/MASKED
+# if masked data is used, nsbas_process_path = NSBAS_PROCESS/MASKED/H|V
+def prepare_process_directories(nsbas_input_dir, nsbas_process_path, orientation, pair_table, date_list_file, masked):
     # create subdir in NSBAS_PROCESS based on orientation
     process_orient_dir = os.path.join(nsbas_process_path, orientation)
     Path(process_orient_dir).mkdir(parents=True, exist_ok=True)
-    
-    # get /EXPORT/NSBAS/orientation dir 
-    input_orient_dir = os.path.join(nsbas_input_dir, orientation)
+
+    # copy the input_inv_send in each dir
+    shutil.copy(os.path.join(nsbas_input_dir, 'input_inv_send'), os.path.join(process_orient_dir, 'input_inv_send'))
+
+    # generate list_pair based on table_... (created with PrepaMSBAS)
+    generate_list_pair(process_orient_dir, pair_table)
+
+    # generate list_dates
+    generate_list_dates(process_orient_dir, date_list_file, pair_table)
+
+
+    if(masked):
+        input_orient_dir = os.path.join(nsbas_input_dir, 'MASKED', orientation) 
+    # get /EXPORT/NSBAS/orientation dir
+    else:
+        input_orient_dir = os.path.join(nsbas_input_dir, orientation)
 
     # create NSBAS_PROCESS/orientation/LN_DATA dir
     ln_data_dir = os.path.join(process_orient_dir, 'LN_DATA')
@@ -135,13 +151,13 @@ def prepare_process_directories(nsbas_input_dir, nsbas_process_path, orientation
             os.symlink(os.path.join(input_orient_dir, f), os.path.join(ln_data_dir, '{}{}'.format(f.split('_')[0], ext)))
 
     # copy the input_inv_send in each dir
-    shutil.copy(os.path.join(nsbas_input_dir, 'input_inv_send'), os.path.join(process_orient_dir, 'input_inv_send'))
+    #shutil.copy(os.path.join(nsbas_input_dir, 'input_inv_send'), os.path.join(process_orient_dir, 'input_inv_send'))
 
     # generate list_pair based on table_... (created with PrepaMSBAS)
-    generate_list_pair(process_orient_dir, pair_table)
+    #generate_list_pair(process_orient_dir, pair_table)
 
     # generate list_dates
-    generate_list_dates(process_orient_dir, date_list_file, pair_table)
+    #generate_list_dates(process_orient_dir, date_list_file, pair_table)
 
 ########
 # MAIN #
@@ -152,8 +168,15 @@ arguments = docopt.docopt(__doc__)
 # path to data dir (former  working directory)
 work_dir = arguments['--data']
 
-nsbas_process_dir = os.path.join(work_dir, 'NSBAS_PROCESS')
-Path(nsbas_process_dir).mkdir(parents=True, exist_ok=True)
+# check if masked is set
+masked = arguments['--masked']
+
+if(masked):
+    nsbas_process_dir = os.path.join(work_dir, 'NSBAS_PROCESS', 'MASKED')
+    Path(nsbas_process_dir).mkdir(parents=True, exist_ok=True)
+else:
+    nsbas_process_dir = os.path.join(work_dir, 'NSBAS_PROCESS')
+    Path(nsbas_process_dir).mkdir(parents=True, exist_ok=True)
 
 nsbas_input_dir = os.path.join(work_dir, 'EXPORT', 'NSBAS')
 
@@ -165,10 +188,10 @@ date_list_file = os.path.join(nsbas_input_dir, 'dates_list.txt')
 
 
 print('START PREPARING H DIRECTORY')
-prepare_process_directories(nsbas_input_dir, nsbas_process_dir, 'H', pair_table, date_list_file)
+prepare_process_directories(nsbas_input_dir, nsbas_process_dir, 'H', pair_table, date_list_file, masked)
 print('FINISHED H')
 
 print('START PREPARING V DIRECTORY')
-prepare_process_directories(nsbas_input_dir, nsbas_process_dir, 'V', pair_table, date_list_file)
+prepare_process_directories(nsbas_input_dir, nsbas_process_dir, 'V', pair_table, date_list_file, masked)
 print('FINISHED V')
 
