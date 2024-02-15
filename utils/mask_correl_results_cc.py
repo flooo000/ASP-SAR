@@ -5,8 +5,8 @@ mask_result_export_cc.py
 -------------
 Mask the adjusted correlation results in EXPORT/ADJUSTED based on their corresponding correlation coefficient map in EXPORT/CC and save them in MASKED/CC
 
-Usage: prepare_result_export.py [--f] --data=<path>
-prepare_result_export.py -h | --help
+Usage: mask_result_export_cc.py [--f] --data=<path>
+mask_result_export_cc.py -h | --help
 
 Options:
 -h | --help         Show this screen
