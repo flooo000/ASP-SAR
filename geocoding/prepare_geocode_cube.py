@@ -5,14 +5,15 @@ prepare_geocode_cube.py
 --------------
 Converts images from cube file into format for geocoding and copies them to TO_GEOCODE.
 
-Usage: prepare_geocode.py --data=<path> [--dest=<path>] [--cube=<path>]
-prepare_geocode.py -h | --help
+Usage: prepare_geocode_cube.py --data=<path> [--dest=<path>] [--cube=<path>] [--masked]
+prepare_geocode_cube.py -h | --help
 
 Options:
 -h | --help             Show this screen
 --data                  Path to NSBAS processing directory, either H or V
 --dest                  Path to destination directory [default: create TO_GEOCODE in EXPORT directory]
 --cube                  Path to cube file to specify which cube file [default: will look for depl_cumule_flat]
+--masked                If masked files are used [default: no]
 
 """
 
@@ -60,8 +61,15 @@ arguments = docopt.docopt(__doc__)
 # path to NSBAS processing directory
 data_path = arguments['--data']
 
+# check if masked files are used - if yes, need to adjust path and output
+masked = arguments['--masked']
+
 # prepare output directory, save in WORK_DIR/EXPORT/TO_GEOCODE
-export_dir = os.path.join(os.path.dirname(os.path.dirname(data_path)), 'EXPORT')
+if(masked):
+    # need to go one directory deeper because of NSBAS_PROCESS/MASKED/H
+    export_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(data_path))), 'EXPORT')
+else:
+    export_dir = os.path.join(os.path.dirname(os.path.dirname(data_path)), 'EXPORT')
 output_dir = os.path.join(export_dir, 'TO_GEOCODE')
 Path(output_dir).mkdir(parents=True, exist_ok=True)
 
@@ -79,12 +87,12 @@ else:
     cube_file = arguments['--cube']
 
 # get image dimensions and number of images - use lect_ts.in file
-# TODO: check gdal.Open of depl_cumule_flat -> problems reading
-
+# to open depl_cumule_flat file - cp depl_cumule.hdr depl_cumule_flat.hdr
 #ds = gdal.Open(cube_file)
 if os.path.exists(os.path.join(data_path, 'lect_ts.in')):
     ncol, nlines, n_img = list(map(int, open(os.path.join(data_path, 'lect_ts.in')).readline().split(None, 2)[0:3]))
 else:
+    ds = gdal.Open(cube_file)
     ncol, nlines = ds.RasterXSize, ds.RasterYSize
     n_img = ds.RasterCount
 
@@ -98,7 +106,10 @@ maps = read_cube(cube_file, ncol, nlines, n_img)
 # save individual map
 for l in range(n_img):
     curr_date = dates[l]
-    filename = 'REGEOC.{}_{}_{}.r4'.format(direction_name, os.path.basename(cube_file), curr_date)
+    if(masked):
+        filename = 'REGEOC.{}_{}_{}_{}.r4'.format(direction_name, os.path.basename(cube_file), curr_date, 'MASKED')
+    else:
+        filename = 'REGEOC.{}_{}_{}.r4'.format(direction_name, os.path.basename(cube_file), curr_date)
     print('saving: {}'.format(filename))
 
     save_single_map(output_dir, filename, maps) 
