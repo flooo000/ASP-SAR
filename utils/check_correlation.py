@@ -4,6 +4,7 @@
 check_correlation.py
 ----------------
 Plots the histogramm and the standard deviation of a selected area of an image.
+By default it reads .tif files, but other file formats are supported (.r4/.bil) as long is .hdr file exists
 
 Usage: check_correlation.py --data=<path> --area=<values> [--nsbas]
 check_correlation.py -h | --help
@@ -12,7 +13,7 @@ Options:
 -h | --help         Show this screen
 --data              Path to input image
 --area              Select a specific region xmin,xmax,ymin,ymax
---nsbas             Input file format .r4 (result of NSBAS processing) [Default: .tif]
+--nsbas             Input file format .r4/.bil (result of NSBAS processing) [Default: .tif]
 
 """
 
@@ -43,10 +44,15 @@ def read_from_file(input_file):
 
 def read_from_nsbas_file(input_file):
     input_path = os.path.dirname(input_file)
-    # take depl_cumule to get image dimension
-    # TODO: find a better way to also read other files in .r4 outside of nsbas directory
-    hdr_file = os.path.join(input_path, 'depl_cumule')
+    filename = os.path.splitext(os.path.basename(input_file))[0]
 
+    if(os.path.isfile(os.path.join(input_path, '{}.hdr'.format(filename)))):
+        hdr_file = input_file
+    else:
+        # take depl_cumule to get image dimension
+        hdr_file = os.path.join(input_path, 'depl_cumule')
+    print('Get image dimension using: {}'.format(hdr_file))
+    
     ds = gdal.Open(hdr_file)
     ncol, nrow = ds.RasterXSize, ds.RasterYSize
 
