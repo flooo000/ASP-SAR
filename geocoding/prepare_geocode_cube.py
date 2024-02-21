@@ -70,8 +70,12 @@ if(masked):
     export_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(data_path))), 'EXPORT')
 else:
     export_dir = os.path.join(os.path.dirname(os.path.dirname(data_path)), 'EXPORT')
-output_dir = os.path.join(export_dir, 'TO_GEOCODE')
-Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+if(arguments['--dest']):
+    output_dir = arguments['--dest']
+else:
+    output_dir = os.path.join(export_dir, 'TO_GEOCODE')
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
 # get naming of dir to check if it is range or azimuth
 direction = os.path.basename(os.path.normpath(data_path))
