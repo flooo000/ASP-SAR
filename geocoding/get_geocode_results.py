@@ -5,13 +5,14 @@ get_geocode_results.py
 --------------
 Generates GEOCODED directory and links all the files from the GeoProjection directory.
 
-Usage: get_geocode_results.py --data=<path> --dest=<path>
+Usage: get_geocode_results.py --data=<path> --dest=<path> --name=<value>
 get_geocode_results.py -h | --help
 
 Options:
 -h | --help             Show this screen
 --data                  Path to GeoProjection dir in MasTer directory
 --dest                  Path to working directory, where results should be linked
+--name                  Name of output directory for EXPORT/GEOCODED/name
 
 """
 
@@ -57,8 +58,9 @@ geo_master_dir = arguments['--data']
 
 work_dir = arguments['--dest']
 
+name = arguments['--name']
 # 
-output_dir = os.path.join(work_dir, 'EXPORT', 'GEOCODED')
+output_dir = os.path.join(work_dir, 'EXPORT', 'GEOCODED', name)
 Path(output_dir).mkdir(parents=True, exist_ok=True)
 
 link_all_data(geo_master_dir, output_dir)
