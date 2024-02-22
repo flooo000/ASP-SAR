@@ -12,7 +12,7 @@ Options:
 -h | --help             Show this screen
 --data                  Path to NSBAS processing directory, either H or V
 --dest                  Path to destination directory [default: create TO_GEOCODE in EXPORT directory]
---cube                  Path to cube file to specify which cube file [default: will look for depl_cumule_flat]
+--cube                  Path to cube file to specify which cube file [default: will look for depl_cumule]
 --masked                If masked files are used [default: no]
 
 """
@@ -86,7 +86,7 @@ else:
 
 # check if specific cube file was chosen (has to be in same directory) 
 if(arguments['--cube'] is None):
-    cube_file = os.path.join(data_path, 'depl_cumule_flat')
+    cube_file = os.path.join(data_path, 'depl_cumule')
 else:
     cube_file = arguments['--cube']
 
