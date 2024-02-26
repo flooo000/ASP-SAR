@@ -27,3 +27,12 @@ The processing chain additionally compute the time series analysis with NSBAS .
 
 # Export for NSBAS time series analysis
 10. Prepare files and directory structure for NSBAS processing: prepare_nsbas_process.py --data=WORKING_DIR (e.g prepare_nsbas_process.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105/)
+
+# Masking data set based on CC and process masked results
+After step 8.\
+1. Mask the results in EXPORT directory: mask_result_export_cc.py --data=EXPORT_DIR (e.g. mask_correl_results_cc.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105_crop/EXPORT)
+2. Re-run prepare_result_export.py with extra --masked option: prepare_result_export.py --data=WORKING_DIR --masked (e.g. prepare_result_export.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105_crop --masked)
+3. Run prepare_nsbas_process.py with --masked to use the masked data for the inversion input files: prepare_nsbas_process.py --data=WORKING_DIR --masked (e.g. prepare_nsbas_process.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105_crop --masked)
+4. Run inversion in WORKING_DIR/NSBAS_PROCESS/MASKED/H|V
+
+
