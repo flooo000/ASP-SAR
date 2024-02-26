@@ -1,6 +1,6 @@
 # ASP-SAR
 
-Processing tool package written in bash and python for image correlation of coregistered SAR images using the AMES stereo toolbox (https://stereopipeline.readthedocs.io/en/latest/). The coregistration is done using the MasTer toolbox().\
+Processing tool package written in bash and python for image correlation of coregistered SAR images using the AMES stereo toolbox (https://stereopipeline.readthedocs.io/en/latest/). The coregistration is done using the AMSTer toolbox(https://github.com/AMSTerUsers/AMSTer_Distribution).\
 The processing chain additionally compute the time series analysis with NSBAS .
 
 ![Alt text](logo-pnts.jpg)
@@ -26,10 +26,10 @@ The processing chain additionally compute the time series analysis with NSBAS .
 8. Prepare the results for download/analysis in QGIS: prepare_result_export.py --data=WORKING_DIR (e.g prepare_result_export.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105)
 
 # Export for NSBAS time series analysis
-10. Prepare files and directory structure for NSBAS processing: prepare_nsbas_process.py --data=WORKING_DIR (e.g prepare_nsbas_process.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105/)
+9. Prepare files and directory structure for NSBAS processing: prepare_nsbas_process.py --data=WORKING_DIR (e.g prepare_nsbas_process.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105/)
 
 # Masking data set based on CC and process masked results
-After step 8.\
+After step 8. Export file
 1. Mask the results in EXPORT directory: mask_result_export_cc.py --data=EXPORT_DIR (e.g. mask_correl_results_cc.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105_crop/EXPORT)
 2. Re-run prepare_result_export.py with extra --masked option: prepare_result_export.py --data=WORKING_DIR --masked (e.g. prepare_result_export.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105_crop --masked)
 3. Run prepare_nsbas_process.py with --masked to use the masked data for the inversion input files: prepare_nsbas_process.py --data=WORKING_DIR --masked (e.g. prepare_nsbas_process.py --data=/data/processing/ASP-SAR/nepal/TSX/Nepal_Desc_105_crop --masked)
