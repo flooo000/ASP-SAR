@@ -73,7 +73,7 @@ def generate_input_inv_send(out_dir):
     # set starting parameters as suggested in documentation
     f.write("""\
 0.003  #  temporal smoothing weight, gamma liss **2 (if <0.0001, no smoothing)
-0     #   mask pixels with large RMS misclosure  (y=0;n=1)
+1     #   mask pixels with large RMS misclosure  (y=0;n=1)
 1.5    #  threshold for the mask on RMS misclosure (in same unit as input files)
 1      #  range and azimuth downsampling (every n pixel)
 0      #  iterations to correct unwrapping errors (y:nb_of_iterations,n:0)
