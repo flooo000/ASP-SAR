@@ -239,10 +239,11 @@ nsbas_dir = os.path.join(exp_dir, 'NSBAS')
 cc_dir = os.path.join(exp_dir, 'CC')
 
 if(force):
-    print('FORCE RECOMPUTATION: REMOVE EXPORT/ADJUSTED, EXPORT/NSBAS, EXPORT/RAW')
+    print('FORCE RECOMPUTATION: REMOVE EXPORT/ADJUSTED, EXPORT/NSBAS, EXPORT/RAW, EXPORT/CC')
     shutil.rmtree(raw_dir)
     shutil.rmtree(adj_dir)
     shutil.rmtree(nsbas_dir)
+    shutil.rmtree(cc_dir)
     
 # check and create subdirectories
 Path(raw_dir).mkdir(parents=True, exist_ok=True)
