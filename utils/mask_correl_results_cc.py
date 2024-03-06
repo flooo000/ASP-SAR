@@ -79,9 +79,9 @@ masked_dir = os.path.join(export_dir, 'MASKED')
 Path(masked_dir).mkdir(parents=True, exist_ok=True)
 
 
-for f in os.listdir(cc_dir):
+for i, f in enumerate(os.listdir(cc_dir)):
     curr_pair = '{}_{}'.format(f.split('_')[0], f.split('_')[1])
-    print('Start masking pair: {}'.format(curr_pair))
+    print('Start masking pair({}/{}): {}'.format(i+1, len(os.listdir(cc_dir)), curr_pair))
 
     h_origin = os.path.join(adj_dir, '{}-F-H_wm.tif'.format(curr_pair))
     v_origin = os.path.join(adj_dir, '{}-F-V_wm.tif'.format(curr_pair))

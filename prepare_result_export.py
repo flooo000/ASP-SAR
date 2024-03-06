@@ -181,8 +181,8 @@ def prepare_NSBAS(data_dir, masked):
     # convert to list to keep list data type
     pair_list = list(pair_set)
 
-    for f in pair_list:
-        print('Start: {}'.format(f))
+    for i, f in enumerate(pair_list):
+        print('Start pair ({}/{}): {}'.format(i+1, len(pair_list), f))
         if(masked):
             h_file = os.path.join(data_dir, '{}-F-H_wm_MASK.tif'.format(f))
             v_file = os.path.join(data_dir, '{}-F-V_wm_MASK.tif'.format(f))
@@ -190,13 +190,13 @@ def prepare_NSBAS(data_dir, masked):
             h_file = os.path.join(data_dir, '{}-F-H_wm.tif'.format(f))
             v_file = os.path.join(data_dir, '{}-F-V_wm.tif'.format(f))
 
-        print('Start: {}'.format(h_file))
+        print('Start: {}'.format(os.path.basename(h_file)))
         process_single_disparity_NSBAS(h_file, 'H', masked)
-        print('Finished: {}'.format(h_file))
+        print('Finished: {}'.format(os.path.basename(h_file)))
 
-        print('Start: {}'.format(v_file))
+        print('Start: {}'.format(os.path.basename(v_file)))
         process_single_disparity_NSBAS(v_file, 'V', masked)
-        print('Finished: {}'.format(v_file))
+        print('Finished: {}'.format(os.path.basename(v_file)))
 
 
     out_dir = os.path.join(os.path.dirname(data_dir), 'NSBAS')
@@ -277,8 +277,8 @@ print('##################################')
 print('PROCESS AND COPY DISPARITY MAPS')
 print('##################################')
 
-for d in dir_list:
-    print('Start pair: {}'.format(os.path.basename(d)))
+for i, d in enumerate(dir_list):
+    print('Start pair ({}/{}): {}'.format(i+1, len(dir_list), os.path.basename(d)))
     curr_pair = os.path.basename(d)
     # use here the complete correl-F instead of the disparitydebug results
     v_path = os.path.join(d, 'asp', 'correl-F.tif')
