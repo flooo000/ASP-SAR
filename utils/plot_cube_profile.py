@@ -13,7 +13,7 @@ Options:
 --cube                  Path to cube file
 --lstart                Start coordinate of line (x,y)
 --lend                  End coordiante of line (x,y)
---list_dates            Path to list_dates file
+--list_dates            Path to images_retenues file
 --aspect                Path to aspect map
 --amplitude             Path to displacement amplitude 
 
@@ -110,6 +110,7 @@ arguments = docopt.docopt(__doc__)
 
 cube_file = arguments['--cube']
 
+# images retenues file 
 list_dates_file = arguments['--list_dates']
 
 lstart = tuple(map(int, arguments['--lstart'].split(',')))
@@ -181,7 +182,8 @@ for i in range(n_img):
     # get pixel along the line
     profile = img_slice[rows,cols] 
     
-    # remove error values, maybe change at one point to variable from reading the metadata of image
+    # HARD CODED - change add one point
+    # remove outliers values, maybe change at one point to variable from reading the metadata of image
     profile = np.where((profile > 50) | (profile < -50), np.nan, profile)
 
     ax2.plot(profile, color=cmap(norm(i)), label=f'Slice {i+1}', linewidth=1)
@@ -200,10 +202,6 @@ cbar.set_ticks(tick_indices)
 cbar.set_ticklabels(dates_conv[tick_indices]) 
 
 ax2.set_xlim(0, len(profile))
-# u_slope
-#ax2.set_ylim(-5,20)
-# u_z
-ax2.set_ylim(-22,5)
 
 ax2.set_title('Profile lines of cube')
 ax2.set_xlabel('Profile Point Index')
