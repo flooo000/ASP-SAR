@@ -147,12 +147,15 @@ rows = np.linspace(lstart[1], lend[1], num_steps).astype(int)
 cols = np.linspace(lstart[0], lend[0], num_steps).astype(int)
 
 # plot last map of cube for reference
-slice_to_plot = maps[:,:,n_img-1] 
+# masked map based of values outside 1st-99th percentile
+p1, p2 = np.nanpercentile(maps[:,:,n_img-1], 1), np.nanpercentile(maps[:,:,n_img-1], 99)
+map_plot = np.ma.masked_outside(maps[:,:,n_img-1], p1, p2) 
+#slice_to_plot = np.where((maps[:,:,n_img-1] < p1) | (maps[:,:,n_img-1] > p2), 0, maps[:,:,n_img-1])
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
 
 # plot one map of the cube as orientation
-cax1 = ax1.imshow(slice_to_plot, cmap='Spectral', vmin=-20, vmax=20)
+cax1 = ax1.imshow(map_plot, cmap='Spectral', vmin=-20, vmax=20)
 ax1.plot(cols, rows, color='black')  # Plot the line
 ax1.set_title('Profile with cumulative displacement map')
 
@@ -169,7 +172,7 @@ cbar1 = fig.colorbar(cax1, ax=ax1, orientation='horizontal', pad=0.15)
 cbar1.set_label('Displacement [m]')
 
 if(arguments['--aspect']):
-    x_bounded, y_bounded, u, v = prepare_arrows(slice_to_plot, lstart, lend, angles, amplitudes)
+    x_bounded, y_bounded, u, v = prepare_arrows(map_plot, lstart, lend, angles, amplitudes)
     ax1.quiver(x_bounded, y_bounded, u, v, angles='uv', scale_units='xy', scale=0.1, color='r')
 
 # define colormap for profile lines
