@@ -160,7 +160,8 @@ ax1.plot(cols, rows, color='black')  # Plot the line
 ax1.set_title('Profile with cumulative displacement map')
 
 # plot dots every n_dots pixel to have orientation
-n_dots = 20
+n_dots = int(num_steps/10)
+print('Sampling for profile line dots: {} pixel'.format(n_dots))
 for j in range(0, len(cols), n_dots):
     ax1.plot(cols[j], rows[j], marker='o', color='grey', markersize=3)
 
