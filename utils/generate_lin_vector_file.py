@@ -5,15 +5,16 @@ generate_lin_vector_file.py
 --------------
 Generates vector file with linear model between two dates.
 
-Usage: generate_lin_vector_file.py --data=<path> --dest=<path> --dates=<value> --name=<value>
+Usage: generate_lin_vector_file.py --data=<path> --dest=<path> --dates=<value> --name=<value> [--adj]
 generate_lin_vector_file.py -h | --help
 
 Options:
 -h | --help             Show this screen
---data                  Path to list_dates file
+--data                  Path to images_retenues file
 --dest                  Path to destination directory
 --dates                 Start and end date to model linear trend as date1,date2
 --name                  Name extension for output file
+
 """
 ##########
 # IMPORT #
@@ -28,23 +29,37 @@ from pathlib import Path
 import shutil
 from dateutil import parser
 import docopt
+from datetime import datetime
+
 
 #############
 # FUNCTIONS #
 #############
 
-def lin_trend(dates, d1, d2):
+def date_to_float(date):
+    date_str = str(date)
+    d = datetime.strptime(date_str, '%Y%m%d')
+
+    return (d.year + (d.month-1)/12.0 + (d.day-1)/365.0)
+
+def lin_trend_adj(dates, dates_dec, d1, d2):
     i1 = dates.index(d1)
     i2 = dates.index(d2)
 
-    v = np.zeros((len(dates)))
-    for i in range(i1 + 1, i2):
-        v[i] = np.nan
+    dmax = dates_dec[i2] - dates_dec[i1] 
+    
+    # m = 1 / (dates_dec[i2] - dates_dec[i1])
+    m = 1
 
-    for i in range(i2, len(dates)):
-        v[i] = 1.0
+    v = np.zeros((len(dates)))
+    for i in range(i1, i2 + 1):
+        v[i] = m * (dates_dec[i] - dates_dec[i1])
+    
+    for i in range(i2 + 1, len(dates)):
+        v[i] = dmax
     
     return v
+
 
 
 ########
@@ -66,20 +81,22 @@ start_date, end_date = in_dates.split(',')
 # naming for output file
 name = arguments['--name']
 
+# use interpolation method
+adj = arguments['--adj']
+
+
 list_dates = pd.read_csv(data_path, sep=' ', header=None)
-dates = [str(d) for d in list(list_dates[0])]
-dates_dec = [float(d) for d in list(list_dates[1])]
+dates = [str(d) for d in list(list_dates[1])]
+dates_dec = [date_to_float(d) for d in dates]
 
-# set values to NaN that will be interpolated, date1=0 and date2=1
-vector_nan = lin_trend(dates, start_date, end_date)
+vector = lin_trend_adj(dates, dates_dec, start_date, end_date)
 
-# generate pd.Series to interpolate based on decimal date and replace nan values
-vector_series = pd.Series(vector_nan, index=dates_dec)
-
-vector = vector_series.interpolate(method='index')
-
-with open(os.path.join(dest_path, 'vector_lin{}.txt'.format(name)), 'w') as f:
+with open(os.path.join(dest_path, 'vector_lin{}_adj.txt'.format(name)), 'w') as f:
     for v in vector:
         f.write('{}\n'.format(str(v)))
+
+
+
+
 
 
