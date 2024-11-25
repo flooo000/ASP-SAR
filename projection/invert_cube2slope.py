@@ -107,34 +107,63 @@ def plot_aspect_sensitivity(aspect_360, heading_rad, incidence, omega_360):
             u_az_inv[i][j] = m[0]
             u_rg_inv[i][j] = m[1]
 
+    # run test with different input - set u_rg and u_az 
+    u_rg_10 = np.full(aspect_360.shape, 2)
+    u_az_10 = np.full(aspect_360.shape, 2)
 
-    invert_results_360 = invert_single_map(u_rg_inv, u_az_inv, phi, heading_rad, theta_360, omega_360)
+    invert_results_360_10 = invert_single_map(u_rg_10, u_az_10, phi, heading_rad, theta_360, omega_360)
+    u_slope_10, u_z_10 = invert_results_360_10
+
+    # add random noise to the obtained u_rg and u_az before calculating the u_slope and u_z
+    invert_results_360 = invert_single_map(u_rg_inv + np.random.uniform(-0.2, 0.2, u_rg_inv.shape), u_az_inv + np.random.uniform(-0.2, 0.2, u_az_inv.shape), phi, heading_rad, theta_360, omega_360)
     u_slope_360, u_z_360 = invert_results_360
 
     fig, (ax_cartesian, ax_polar) = plt.subplots(1, 2, figsize=(12, 6))
 
-    #ax_cartesian.plot(aspect_360, np.where(u_slope_360 > 200, np.nan, u_slope_360), label='u_slope', color='b')
-    #ax_cartesian.plot(aspect_360, np.where(u_z_360 > 200, np.nan, u_z_360), label='u_z', color='r')
+    #ax_cartesian.plot(aspect_360, np.where(u_az_inv > 200, np.nan, u_az_inv), label='u_azimuth', color='b')
+    #ax_cartesian.plot(aspect_360, np.where(u_rg_inv > 200, np.nan, u_rg_inv), label='u_range', color='r')
 
-    ax_cartesian.plot(aspect_360, np.where(u_az_inv > 200, np.nan, u_az_inv), label='u_azimuth', color='b')
-    ax_cartesian.plot(aspect_360, np.where(u_rg_inv > 200, np.nan, u_rg_inv), label='u_range', color='r')
+    ax_cartesian.plot(aspect_360, np.where(np.abs(u_slope_360) > 200, np.nan, u_slope_360), label='u_slope', color='b')
+    ax_cartesian.plot(aspect_360, np.where(np.abs(u_z_360) > 200, np.nan, u_z_360), label='u_z', color='r')
+
+    ax_cartesian.plot(aspect_360, np.where(np.abs(u_slope_10) > 50, np.nan, u_slope_10), label='u_slope_10', color='orange')
+    ax_cartesian.plot(aspect_360, np.where(np.abs(u_z_10) > 50, np.nan, u_z_10), label='u_z_10', color='green')
+
+    # plot Heading, LOS, -LOS in cartesian plot
+    #ax_cartesian.axvline(np.degrees((1/2)*np.pi-heading_rad), color='black', label='heading')
+    ax_cartesian.axvline(np.degrees(np.pi-heading_rad), color='orange', label='LOS')
+    ax_cartesian.axvline(np.degrees(2*np.pi-heading_rad), color='orange', label='-LOS', linestyle='--')
+
+    los_center = np.degrees(np.pi - heading_rad)
+    los_neg_center = np.degrees(2 * np.pi - heading_rad)
+    box_width = 10  # Box width in degrees
+
+# Add shaded boxes around LOS and -LOS
+    ax_cartesian.axvspan(los_center - box_width, los_center + box_width, color='grey', alpha=0.3, label='LOS ±10°')
+    ax_cartesian.axvspan(los_neg_center - box_width, los_neg_center + box_width, color='grey', alpha=0.3, label='-LOS ±10°')
+
 
     ax_cartesian.set_xlabel('Aspect [°]')
     ax_cartesian.set_ylabel('Parameter')
 
-    ax_cartesian.set_ylim(-5, 5)
+    ax_cartesian.set_xlim(0, 360)
 
     ax_polar = fig.add_subplot(122, polar=True)
-    ax_polar.plot(np.radians(aspect_360), u_az_inv, label='u_azimuth', color='b')
-    ax_polar.plot(np.radians(aspect_360), u_rg_inv, label='u_range', color='r')
+    #ax_polar.plot(np.radians(aspect_360), u_az_inv, label='u_azimuth', color='b')
+    #ax_polar.plot(np.radians(aspect_360), u_rg_inv, label='u_range', color='r')
+    #ax_polar.plot(np.radians(aspect_360), np.zeros(aspect_360.shape), color='grey')
 
-    ax_polar.set_ylim(-2, 2)
+    ax_polar.plot(np.radians(aspect_360), u_slope_360, label='u_slope', color='b')
+    ax_polar.plot(np.radians(aspect_360), u_z_360, label='u_z', color='r')
+
+    r_values = [-10, 10]
+    ax_polar.set_ylim(r_values)
     
     ax_polar.set_theta_zero_location('N')
     ax_polar.set_theta_direction(-1)
 
     # set size of line for LOS and Heading
-    r_values = [-2, 2]
+    #r_values = [-2, 2]
 
     ax_polar.plot([np.pi-heading_rad, np.pi-heading_rad], r_values, color='orange', label='LOS')
     ax_polar.plot([2*np.pi-heading_rad, 2*np.pi-heading_rad], r_values, color='orange', label='-LOS', linestyle='--')
@@ -148,6 +177,50 @@ def plot_aspect_sensitivity(aspect_360, heading_rad, incidence, omega_360):
 
     plt.tight_layout()
     plt.show()
+
+def plot_aspect_theta(aspect_360, theta_90, omega_360, incidence):
+
+    print('PLOT ASPECT + THETA INVERSION')
+
+    u_slope_360_90 = np.full((aspect_360.shape[0], alpha_90.shape[0]), 1)
+    u_z_360_90 = np.full((aspect_360.shape[0], alpha_90.shape[0]), 0)
+
+    u_rg_inv = np.zeros(u_slope_360_90.shape)
+    u_az_inv = np.zeros(u_slope_360_90.shape)
+
+    theta_360_90 = np.tile(theta_90, (360, 90))
+    plt.imshow(theta_360_90)
+    plt.show()
+    omega_360_90 = np.tile(omega_360, (1, 90))
+
+    for i in range(aspect_360.shape[0]):
+        for j in range(theta_90.shape[0]):
+            d = np.array([u_slope_360_90[i][j], u_z_360_90[i][j]])
+            G = construct_G(i, j, phi, heading_rad, theta_360_90, omega_360_90)
+            m = G.dot(d)
+
+            u_az_inv[i][j] = m[0]
+            u_rg_inv[i][j] = m[1]
+
+    fig, axes = plt.subplots(2, 1, figsize=(8, 10))
+
+# Plot the azimuth map
+    img1 = axes[0].imshow(u_az_inv.T, cmap='Spectral', aspect='auto')
+    #img1 = axes[0].imshow(u_az_inv, cmap='nipy_spectral', extent=[aspect_360.min(), aspect_360.max(), np.degrees(alpha_90).min(), np.degrees(alpha_90).max()], aspect='auto')
+    axes[0].set_title('u_az')
+    axes[0].set_xlabel('Aspect (degrees)')
+    axes[0].set_ylabel('Slope (degrees)')
+    fig.colorbar(img1, ax=axes[0], orientation='vertical')
+
+    img2 = axes[1].imshow(u_rg_inv.T, cmap='Spectral', aspect='auto')
+    axes[1].set_title('u_range')
+    axes[1].set_xlabel('Aspect (degrees)')
+    axes[1].set_ylabel('Slope (degrees)')
+    fig.colorbar(img2, ax=axes[1], orientation='vertical')
+
+    plt.tight_layout(pad=3.0)
+    plt.show()
+
 
 def plot_aspect_slope(aspect_360, alpha_90, omega_360, incidence):
     
@@ -272,6 +345,7 @@ def save_cube_metadata(dest_path, out_filename, img_data):
         hdr_file.write("header offset = 0\n")
         hdr_file.write("file type = ENVI Standard\n")
         hdr_file.write("data type = 4\n")  # 4 represents float32, adjust if needed
+        hdr_file.write("interleave = bip") # add this to display in QGIS and Insar-viz
    
     # save also .in file to plot pixel
     with open(os.path.join(dest_path, 'lect_{}.in'.format(out_filename)), 'w') as lect_file:
@@ -340,19 +414,20 @@ if(arguments['--test']):
         ])
 
     # PAZ Desc
-    heading = 260
+    #heading = 260
     # PAZ ASC
-    #heading = 100
+    heading = 100
 
     heading_rad = np.radians(heading)
     phi = np.radians(-360 + float(heading) + 90)
     
     # PAZ Desc
-    incidence = 42
+    #incidence = 42
     # PAZ ASC
-    #incidence = 32
+    incidence = 32
 
     theta = np.full(u_az_map.shape, np.radians(90 - incidence))
+    theta_90 = np.radians(np.arange(90).reshape(90, 1))
 
     aspect = 200
     conv_aspect = np.mod(aspect - 90, 360)
@@ -369,11 +444,13 @@ if(arguments['--test']):
     alpha_90 = np.radians(np.arange(90).reshape(90, 1))
     
     # PLOT ASPECT - u_range, u_azimuth
-    #plot_aspect_sensitivity(aspect_360, heading_rad, incidence, omega_360)
+    plot_aspect_sensitivity(aspect_360, heading_rad, incidence, omega_360)
    
     # PLOT ASPECT + SLOPE 
     # instead of only u_slope - calculate u_para = u_slope * cos(alpha)
-    plot_aspect_slope(aspect_360, alpha_90, omega_360, incidence)
+    #plot_aspect_slope(aspect_360, alpha_90, omega_360, incidence)
+
+    #plot_aspect_theta(aspect_360, theta_90, omega_360, incidence)
 
     exit()
 
