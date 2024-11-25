@@ -5,14 +5,15 @@ deconstruct_cube.py
 ----------------
 Saves single map or all maps from the cube as tif file. 
 
-Usage: deconstruct_cube.py --cube=<path> --dest=<path> [--nimg=<value>]
+Usage: deconstruct_cube.py --cube=<path> --dest=<path> [--nimg=<value>] [--ref=<path>]
 deconstruct_cube.py -h | --help
 
 Options:
 -h | --help             Show this screen
 --cube                  Path to cube file
 --dest                  Path to destination directory
---nimg                  Number of map to save [Default: saves all files]
+--nimg                  Number of map to save, if -1 - save last file of cube [Default: saves all files]
+--ref                   Path to reference file for the (geo)-projection of output
 
 
 """
@@ -77,21 +78,32 @@ dest_path = arguments['--dest']
 
 dest_img = int(arguments['--nimg'])
 
-
 ds = gdal.Open(cube_file)
 ncols, nlines = ds.RasterXSize, ds.RasterYSize
 n_img = ds.RasterCount
 
-proj = ds.GetProjection()
-geotransform = ds.GetGeoTransform()
+if(dest_img == -1):
+    dest_img = n_img
+
+# if reference image is given, use it for projection
+if(arguments['--ref']):
+    ref_file = arguments['--ref']
+    ds_ref = gdal.Open(ref_file)
+    proj = ds_ref.GetProjection()
+    geotransform = ds_ref.GetGeoTransform()
+else:
+    proj = ds.GetProjection()
+    geotransform = ds.GetGeoTransform()
 
 maps = read_cube(cube_file, ncols, nlines, n_img)
 
 # add later option to save all files
 for l in range(n_img):
-    if(l == dest_img):
+    if(l == dest_img-1):
         curr_map = maps[:,:,l].reshape((nlines, ncols))
 
+
+        print('Save image {} of {} total images in cube'.format(n_img, n_img))
         output_path = os.path.join(dest_path, '{}_map{}.tif'.format(cube_name, dest_img))
         print(output_path)
 
