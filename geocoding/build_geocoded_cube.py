@@ -80,7 +80,8 @@ def save_cube_metadata(dest_path, out_filename, img_data):
         hdr_file.write("header offset = 0\n")
         hdr_file.write("file type = ENVI Standard\n")
         hdr_file.write("data type = 4\n")  # 4 represents float32, adjust if needed
-   
+        hdr_file.write("interleave = bip") # add this to display in QGIS and Insar-viz
+
     # save also .in file to plot pixel
     with open(os.path.join(dest_path, 'lect_{}.in'.format(out_filename)), 'w') as lect_file:
         lect_file.write('\t{}\t{}\t{}'.format(ncol, nrow, nimg))
