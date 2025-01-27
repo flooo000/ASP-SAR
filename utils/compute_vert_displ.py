@@ -16,7 +16,7 @@ Options:
 --dsm                   Path to DSM map
 --dest                  Path to destination directory
 --name                  Name of output file
---filter_size           Filter window size for the DSM [default: 10]
+--filter_size           Filter window size in meter for the DSM [default: 10]
 --angle_threshold       Threshold angle to mask where the horizontal displacement vector deviates by more than this angle from the downslope direction [default: 30]
 """
 
@@ -88,9 +88,9 @@ filter_sigma_x = filter_size / abs(dsm_geotransf[1])
 filter_sigma_y = filter_size / abs(dsm_geotransf[5])
 dsm_filtered = gaussian_filter(dsm, sigma=(filter_sigma_y, filter_sigma_x))
 
-# Compute gradients
-dsm_dy, dsm_dx = np.gradient(dsm_filtered, dsm_geotransf[1], dsm_geotransf[5])
-dsm_dz = -1
+# Compute gradients n = (dx,dy,-1)
+dsm_dy, dsm_dx = np.gradient(dsm_filtered, dsm_geotransf[5], dsm_geotransf[1]) # dy is positive towards north, while dx is positive towards east
+dsm_dz = -1 # positive towards up
 
 # Compute slope normal vector components
 amplitude = np.sqrt(dsm_dx**2 + dsm_dy**2 + dsm_dz**2)
@@ -101,13 +101,13 @@ slope = np.sqrt(dsm_dx**2 + dsm_dy**2)
 u_H = np.sqrt(we_displ**2 + ns_displ**2)
 
 # Compute scalar product  (a.b = a1b1 + a2b2)
-dot_product = nx * we_displ + ny * -ns_displ
+dot_product = nx * we_displ + ny * ns_displ
 
 # Compute vertical displacements
 vert_displ = dsm_diff - np.sign(dot_product) * slope * u_H
 
 # Mask all the pixels for which the horizontal displacements vector is orientated at more than for example 30° from the down-slope direction.
-aspect = (np.rad2deg(np.arctan2(-dsm_dy, dsm_dx)) + 360 ) % 360   # clock-wise slope direction from 0 to 360 
+aspect = (np.rad2deg(np.arctan2(dsm_dy, -dsm_dx)) + 360 ) % 360   # clock-wise slope direction from 0 to 360 
 omega = (np.rad2deg(np.arctan2(ns_displ,we_displ)) + 360) % 360 # clock-wise downslope direction 
 mask = np.nonzero(abs(omega - aspect)  >= angle_threshold)  # Mask where angle <= threshold
 masked_vert_displ = np.copy(vert_displ)
