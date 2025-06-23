@@ -77,7 +77,7 @@ angle_threshold = float(arguments['--angle_threshold']) if arguments['--angle_th
 # Read data
 we_displ = read_tif(we_displ_file)[0]  # positive towards east
 ns_displ = -read_tif(sn_displ_file)[0]  # take negative to make positive towards south
-dsm_diff = read_tif(dsm_diff_file)[0]
+dsm_diff = -read_tif(dsm_diff_file)[0] # take negative to have negative when erosion
 dsm, dsm_cols, dsm_lines, dsm_proj, dsm_geotransf = read_tif(dsm_file)
 
 if not (we_displ.shape == ns_displ.shape == dsm_diff.shape == dsm.shape):
