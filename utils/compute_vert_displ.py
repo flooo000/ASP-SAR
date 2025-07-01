@@ -64,7 +64,7 @@ def save_to_file(data, output_path, ncol, nrow, proj, geotransform):
 arguments = docopt.docopt(__doc__)
 
 we_displ_file = arguments['--we']
-sn_displ_file = arguments['--sn']
+ns_displ_file = arguments['--sn']
 dsm_diff_file = arguments['--vert']
 dsm_file = arguments['--dsm']
 dest_path = arguments['--dest']
@@ -76,8 +76,8 @@ angle_threshold = float(arguments['--angle_threshold']) if arguments['--angle_th
 
 # Read data
 we_displ = read_tif(we_displ_file)[0]  # positive towards east
-ns_displ = -read_tif(sn_displ_file)[0]  # take negative to make positive towards south
-dsm_diff = -read_tif(dsm_diff_file)[0] # take negative to have negative when erosion
+ns_displ = -read_tif(ns_displ_file)[0] # positive towards south 
+dsm_diff = read_tif(dsm_diff_file)[0] # convention: negative when erosion
 dsm, dsm_cols, dsm_lines, dsm_proj, dsm_geotransf = read_tif(dsm_file)
 
 if not (we_displ.shape == ns_displ.shape == dsm_diff.shape == dsm.shape):
@@ -89,7 +89,7 @@ filter_sigma_y = filter_size / abs(dsm_geotransf[5])
 dsm_filtered = gaussian_filter(dsm, sigma=(filter_sigma_y, filter_sigma_x))
 
 # Compute gradients n = (dx,dy)
-dsm_dy, dsm_dx = np.gradient(dsm_filtered, dsm_geotransf[5], dsm_geotransf[1]) # dy is positive towards north, while dx is positive towards east
+dsm_dy, dsm_dx = np.gradient(dsm_filtered, dsm_geotransf[5], dsm_geotransf[1]) # dy is positive towards south, while dx is positive towards east
 
 # Compute downslope unit vector (horizontal component of slope vector)
 norm_ns = np.sqrt(dsm_dx**2 + dsm_dy**2)
@@ -124,7 +124,7 @@ output_path = os.path.join(dest_path, f'aspect.tif')
 save_to_file(aspect, output_path, dsm_cols, dsm_lines, dsm_proj, dsm_geotransf)
 
 # Zoom sur la zone d'intérêt
-crop_slice = (slice(450, 850), slice(500, 900))
+crop_slice = (slice(450, 950), slice(500, 1000))
 dsm_diff_crop = dsm_diff[crop_slice]
 u_H_crop = u_H[crop_slice]
 vert_displ_crop = vert_displ[crop_slice]
@@ -177,7 +177,7 @@ plt.colorbar(cax, cax=c)
 # Downslope direction (omega)
 ax = fig.add_subplot(2, 3, 4)
 cax = ax.imshow(omega_crop, cmap='Greys_r', origin='upper', alpha=0.5, vmax=360, vmin=0)
-ax.set_title("Downslope Direction (clockwise from east)")
+ax.set_title("Velocity Direction (clockwise from east)")
 ax.set_xticks([])
 ax.set_yticks([])
 divider = make_axes_locatable(ax)
