@@ -89,12 +89,12 @@ filter_sigma_y = filter_size / abs(dsm_geotransf[5])
 dsm_filtered = gaussian_filter(dsm, sigma=(filter_sigma_y, filter_sigma_x))
 
 # Compute gradients n = (dx,dy)
-dsm_dy, dsm_dx = np.gradient(dsm_filtered, dsm_geotransf[5], dsm_geotransf[1]) # dy is positive towards south, while dx is positive towards east
+dsm_dy, dsm_dx = np.gradient(dsm_filtered, dsm_geotransf[5], dsm_geotransf[1]) # dy is positive towards south, while dx is positive towards west
 
 # Compute downslope unit vector (horizontal component of slope vector)
 norm_ns = np.sqrt(dsm_dx**2 + dsm_dy**2)
-ns_x = dsm_dx / norm_ns
-ns_y = dsm_dy / norm_ns
+ns_x = -dsm_dx / norm_ns # positive towards east
+ns_y = dsm_dy / norm_ns # positive towards south
 
 # Compute horizontal displacement magnitude
 u_H = np.sqrt(we_displ**2 + ns_displ**2)
@@ -109,8 +109,8 @@ slope = np.sqrt(dsm_dx**2 + dsm_dy**2)  # tan(slope_angle)
 vert_displ = dsm_diff - slope * u_proj
 
 # Mask all the pixels for which the horizontal displacements vector is orientated at more than for example 30° from the down-slope direction.
-aspect = (np.rad2deg(np.arctan2(dsm_dy, -dsm_dx)) + 360 ) % 360   # clock-wise slope direction from 0 to 360 
-omega = (np.rad2deg(np.arctan2(ns_displ,we_displ)) + 360) % 360 # clock-wise downslope direction 
+aspect = (np.rad2deg(np.arctan2(dsm_dy, -dsm_dx)))   # clock-wise slope direction 
+omega = (np.rad2deg(np.arctan2(ns_displ, we_displ)))  # clock-wise downslope direction 
 mask = np.nonzero(abs(omega - aspect)  >= angle_threshold)  # Mask where angle <= threshold
 masked_vert_displ = np.copy(vert_displ)
 masked_vert_displ[mask] = np.nan
@@ -176,7 +176,7 @@ plt.colorbar(cax, cax=c)
 
 # Downslope direction (omega)
 ax = fig.add_subplot(2, 3, 4)
-cax = ax.imshow(omega_crop, cmap='Greys_r', origin='upper', alpha=0.5, vmax=360, vmin=0)
+cax = ax.imshow(omega_crop, cmap='Greys_r', origin='upper', alpha=0.5, vmin=-180, vmax=180)
 ax.set_title("Velocity Direction (clockwise from east)")
 ax.set_xticks([])
 ax.set_yticks([])
@@ -186,7 +186,7 @@ plt.colorbar(cax, cax=c)
 
 # Slope direction (omega)
 ax = fig.add_subplot(2, 3, 5)
-ax.imshow(aspect_crop, cmap='Greys_r', origin='upper', alpha=0.5, vmax=360, vmin=0)
+ax.imshow(aspect_crop, cmap='Greys_r', origin='upper', alpha=0.5, vmin=-180, vmax=180)
 ax.set_title("Slope Direction (clockwise from east)")
 ax.set_xticks([])
 ax.set_yticks([])
